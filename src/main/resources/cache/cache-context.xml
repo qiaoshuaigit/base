@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <!-- cache Context: defines shared caches visible to all other web components -->
+    <description>This is the base cache configuration for all other web applications.</description>
+
+    <bean id="cachePropertyPlaceHolder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="location" value="classpath:/cache.properties"/>
+        <!--<property name="location" value="classpath:/cache-dev.properties"/>-->
+    </bean>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.pool.config.maxTotal}"/>
+        <property name="maxIdle" value="${redis.pool.config.maxIdle}"/>
+        <property name="maxWaitMillis" value="${redis.pool.config.maxWaitMillis}"/>
+        <property name="testOnBorrow" value="${redis.pool.config.testOnBorrow}"/>
+        <property name="testOnReturn" value="${redis.pool.config.testOnReturn}"/>
+    </bean>
+
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="destroy">
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+        <constructor-arg name="host" value="${redis.pool.main.host}"/>
+        <constructor-arg name="port" value="${redis.pool.main.port}"/>
+        <constructor-arg name="timeout" value="${redis.pool.main.timeout}"/>
+        <!--<constructor-arg name="password" value="${redis.pool.main.password}"/>-->
+    </bean>
+
+    <bean id="redisCacheManager" class="com.minxin.base.common.cache.RedisCacheManager">
+        <constructor-arg name="jedisPool" ref="jedisPool"/>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="com.minxin.base.common.utils.CacheUtils.setJedisPool"/>
+        <property name="arguments" ref="jedisPool"/>
+    </bean>
+</beans>

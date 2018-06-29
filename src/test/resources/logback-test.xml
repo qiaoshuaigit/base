@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="rollingfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/minxin-base.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>minxin-base-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 200MB, keep 10 days worth of history, but at most 10GB -->
+            <maxFileSize>200MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.http">
+        <level value="WARN"/>
+    </logger>
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="rollingfile"/>
+    </root>
+</configuration>
